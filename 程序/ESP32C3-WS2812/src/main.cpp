@@ -38,7 +38,7 @@ Adafruit_NeoPixel pixels(SCREEN_WIDTH *SCREEN_HEIGHT, WS2812B_PIN, NEO_GRB + NEO
 void get_band_peak(double *bandFrenquency);
 void drawBandwithoutpeak(int band, int bandheight);
 void drawBandpeak(int band);
-// 定义四种渐变
+// 定义8种颜色
 uint32_t color_list[8] = {0xff0000, 0xff8000, 0xffff00, 0x00c957,
                           0x3d9140, 0x87ceeb, 0x0000ff, 0xa020f0}; 
 void setup()
@@ -120,25 +120,24 @@ void get_band_peak(double *bandFrenquency)
       if(bandheight>=1)bandheight-=1;
     }
     if(i==0&&bandheight>=2) bandheight -=2;
-    // if(i==1&&bandheight>=2) bandheight -=1;
     // 注意这里必须是SCREEN_HEIGHT，否则bandheight永远达不到顶峰
     if (bandheight > SCREEN_HEIGHT)
       bandheight = SCREEN_HEIGHT;
-    // 使用两次的峰值，来平滑Band动画
+    // 平均值，使更加平滑
     bandheight = (prebandpeak[i] + bandheight) / 2;
+    // 使峰顶跳动起来，需要保存两次峰值之间的最大值
     if (bandheight > peak_temp[i])
     {
+      // 更新peak值,只有大于上次的峰值才会更新峰值
       peak_temp[i] = min(SCREEN_HEIGHT, bandheight);
     }
     // 绘制band,但不绘制band的顶部
     drawBandwithoutpeak(i, bandheight);
-    // 更新peak值,只有大于上次的峰值才会更新峰值
-    // 绘制每条band的封顶
+    // 绘制每条band的顶部
     drawBandpeak(i);
-
-    // 使封顶跳动起来，需要保存两次峰值之间的最大值
     prebandpeak[i] = bandheight;
   }
+  // 下落动画
   EVERY_N_MILLISECONDS(120) {
     for (uint8_t i = 0; i < SCREEN_WIDTH; i++)
       if (peak_temp[i] > 0) peak_temp[i] -= 1;
