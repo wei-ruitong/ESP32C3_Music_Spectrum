@@ -28,7 +28,7 @@ unsigned long pretime;
 static double bandFrenquency[8] = {0};
 // 用来存储上一次每隔频段的峰值
 static uint8_t prebandpeak[8] = {0};
-// 峰值，用于封顶下落动画
+// 峰值，用于峰顶下落动画
 static uint8_t peak_temp[8] = {0};
 unsigned char ledid;
 // 创建FFT对象
