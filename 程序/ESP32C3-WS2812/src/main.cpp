@@ -40,7 +40,7 @@ void drawBandwithoutpeak(int band, int bandheight);
 void drawBandpeak(int band);
 // 定义8种颜色
 uint32_t color_list[8] = {0xff0000, 0xff8000, 0xffff00, 0x00c957,
-                          0x3d9140, 0x87ceeb, 0x0000ff, 0xa020f0}; 
+                          0x3d9140, 0x87ceeb, 0x0000ff, 0xa020f0};
 void setup()
 {
   Serial.begin(115200);
@@ -98,15 +98,23 @@ void get_band_peak(double *bandFrenquency)
 #endif
 
 #if 1
-      //SAMPLES = 256
-      if (i<=10 )           bandFrenquency[0]  += (int)vReal[i];
-      if (i>10   && i<=14  ) bandFrenquency[1]  += (int)vReal[i];
-      if (i>14   && i<=21  ) bandFrenquency[2]  += (int)vReal[i];
-      if (i>21   && i<=32  ) bandFrenquency[3]  += (int)vReal[i];
-      if (i>32   && i<=48  ) bandFrenquency[4]  += (int)vReal[i];
-      if (i>48   && i<=71  ) bandFrenquency[5]  += (int)vReal[i];
-      if (i>71   && i<=107  ) bandFrenquency[6]  += (int)vReal[i];
-      if (i>107             ) bandFrenquency[7]  += (int)vReal[i];
+      // SAMPLES = 256
+      if (i <= 10)
+        bandFrenquency[0] += (int)vReal[i];
+      if (i > 10 && i <= 14)
+        bandFrenquency[1] += (int)vReal[i];
+      if (i > 14 && i <= 21)
+        bandFrenquency[2] += (int)vReal[i];
+      if (i > 21 && i <= 32)
+        bandFrenquency[3] += (int)vReal[i];
+      if (i > 32 && i <= 48)
+        bandFrenquency[4] += (int)vReal[i];
+      if (i > 48 && i <= 71)
+        bandFrenquency[5] += (int)vReal[i];
+      if (i > 71 && i <= 107)
+        bandFrenquency[6] += (int)vReal[i];
+      if (i > 107)
+        bandFrenquency[7] += (int)vReal[i];
 #endif
     }
   }
@@ -115,11 +123,14 @@ void get_band_peak(double *bandFrenquency)
     // 获取每隔频段的幅值，并缩放
     int bandheight = bandFrenquency[i] / AMPLITUDE;
     // 因为第一个band的振幅比较大，这里进行单独的缩放
-    if (i == 0){
-      bandheight = bandheight/2;
-      if(bandheight>=1)bandheight-=1;
+    if (i == 0)
+    {
+      bandheight = bandheight / 2;
+      if (bandheight >= 1)
+        bandheight -= 1;
     }
-    if(i==0&&bandheight>=2) bandheight -=2;
+    if (i == 0 && bandheight >= 2)
+      bandheight -= 2;
     // 注意这里必须是SCREEN_HEIGHT，否则bandheight永远达不到顶峰
     if (bandheight > SCREEN_HEIGHT)
       bandheight = SCREEN_HEIGHT;
@@ -138,9 +149,11 @@ void get_band_peak(double *bandFrenquency)
     prebandpeak[i] = bandheight;
   }
   // 下落动画
-  EVERY_N_MILLISECONDS(120) {
+  EVERY_N_MILLISECONDS(120)
+  {
     for (uint8_t i = 0; i < SCREEN_WIDTH; i++)
-      if (peak_temp[i] > 0) peak_temp[i] -= 1;
+      if (peak_temp[i] > 0)
+        peak_temp[i] -= 1;
   }
 }
 void drawBandwithoutpeak(int band, int bandheight)
@@ -173,16 +186,16 @@ void drawBandwithoutpeak(int band, int bandheight)
 }
 void drawBandpeak(int band)
 {
-    // 计算每个峰顶LED的编号
-    if (band % 2)
-    {
-      // 奇数列1、3、5、7
-      ledid = (band + 1) * SCREEN_HEIGHT - peak_temp[band] - 1;
-    }
-    else
-    {
-      // 偶数列0、2、4、6
-      ledid = band * SCREEN_HEIGHT + peak_temp[band];
-    }
-    pixels.setPixelColor(ledid, 0xffffff);
+  // 计算每个峰顶LED的编号
+  if (band % 2)
+  {
+    // 奇数列1、3、5、7
+    ledid = (band + 1) * SCREEN_HEIGHT - peak_temp[band] - 1;
+  }
+  else
+  {
+    // 偶数列0、2、4、6
+    ledid = band * SCREEN_HEIGHT + peak_temp[band];
+  }
+  pixels.setPixelColor(ledid, 0xffffff);
 }
