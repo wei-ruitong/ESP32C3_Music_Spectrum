@@ -2,17 +2,17 @@
 #include <arduinoFFT.h>
 #include <Adafruit_NeoPixel.h>
 #include <FastLED_NeoMatrix.h>
-// 引脚定义,
+// 引脚定义
 #define MIC_PIN 0
 #define WS2812B_PIN 1
 #define SCREEN_WIDTH 8
 #define SCREEN_HEIGHT 8
 // 采样点数量
-#define SAMPLES 512
+#define SAMPLES 256
 // 采样频率
 #define SAMPLINGFREQUENCY 10000 // 意味着声音频率只能采到5khz
-// 幅值
-#define AMPLITUDE 1000
+// 幅值，512---1000，256---500
+#define AMPLITUDE 500
 // 噪声
 #define NOISE 100
 // 采样周期
@@ -40,7 +40,7 @@ void drawBandwithoutpeak(int band, int bandheight);
 void drawBandpeak(int band);
 // 定义四种渐变
 uint32_t color_list[8] = {0xff0000, 0xff8000, 0xffff00, 0x00c957,
-                           0x3d9140, 0x87ceeb, 0x0000ff, 0xa020f0}; 
+                          0x3d9140, 0x87ceeb, 0x0000ff, 0xa020f0}; 
 void setup()
 {
   Serial.begin(115200);
@@ -77,7 +77,7 @@ void get_band_peak(double *bandFrenquency)
   fft.Compute(FFT_FORWARD);
   // 使用虚值和实值计算幅值,幅值会存储到vReal数组中
   fft.ComplexToMagnitude();
-  fft.MajorPeak(vReal, SAMPLES, SAMPLINGFREQUENCY);
+  // fft.MajorPeak(vReal, SAMPLES, SAMPLINGFREQUENCY);
   // 进行频率划分，划分策略
   // 8 bands, 5kHz top band
   for (int i = 2; i < SAMPLES / 2; i++)
@@ -86,7 +86,7 @@ void get_band_peak(double *bandFrenquency)
     {
       // SAMPLES = 512 ,此时对于esp32c3 速度还算可以
       // 如果值大于512，一般为2的n次幂，FFT比较耗时，UI看起来不是很流畅
-#if 1
+#if 0
       if (i<=19 )           bandFrenquency[0]  += (int)vReal[i];
       if (i>19   && i<=29  ) bandFrenquency[1]  += (int)vReal[i];
       if (i>29   && i<=43  ) bandFrenquency[2]  += (int)vReal[i];
@@ -97,7 +97,7 @@ void get_band_peak(double *bandFrenquency)
       if (i>214             ) bandFrenquency[7]  += (int)vReal[i];
 #endif
 
-#if 0
+#if 1
       //SAMPLES = 256
       if (i<=10 )           bandFrenquency[0]  += (int)vReal[i];
       if (i>10   && i<=14  ) bandFrenquency[1]  += (int)vReal[i];
@@ -114,10 +114,13 @@ void get_band_peak(double *bandFrenquency)
   {
     // 获取每隔频段的幅值，并缩放
     int bandheight = bandFrenquency[i] / AMPLITUDE;
-    // 因为第一个band的底噪比较大，这里进行单独的缩放
-    if (i == 0)
-      bandheight = bandheight/3-2;
-    if(i==1) bandheight -=1;
+    // 因为第一个band的振幅比较大，这里进行单独的缩放
+    if (i == 0){
+      bandheight = bandheight/2;
+      if(bandheight>=1)bandheight-=1;
+    }
+    if(i==0&&bandheight>=2) bandheight -=2;
+    // if(i==1&&bandheight>=2) bandheight -=1;
     // 注意这里必须是SCREEN_HEIGHT，否则bandheight永远达不到顶峰
     if (bandheight > SCREEN_HEIGHT)
       bandheight = SCREEN_HEIGHT;
