@@ -13,7 +13,7 @@
 #define SAMPLINGFREQUENCY 10000 // 意味着声音频率只能采到5khz
 // 幅值，512---1000，256---500
 #define AMPLITUDE 500
-// 噪声
+// 噪声,根据情况自行更改
 #define NOISE 100
 // 采样周期
 unsigned int sampling_period_us;
